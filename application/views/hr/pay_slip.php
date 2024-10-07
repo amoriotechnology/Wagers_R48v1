@@ -567,7 +567,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
 <?php //if ($infoemployee[0]['payroll_type'] == 'Hourly'  ||  $infoemployee[0]['payroll_type'] == 'SalesCommission' || $infoemployee[0]['sales_partner'] == 'Sales_Partner' ) { ?>
 
 <tr>
-    <td style="text-align:left;">NJ-Income tax</td>
+    <td style="text-align:left;">New Jersey-Income tax</td>
     <td></td>
     <td class="current"><?php echo "-" . $hourly; ?></td>
     <td class="ytd"><?php echo round($OVhourly, 2); ?>
@@ -592,7 +592,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
             <td style="border: none;"></td>
             <td style="border: none;"></td>
             <td title="<?php echo "Working State Tax - " . $title; ?>" style="text-align:left; border: none;">
-                <?php echo $rep2 ? $rep2 . '-' . $rep : $rep; ?>
+                <?php echo $title ? $rep2 . '-' . $rep : $rep; ?>
             </td>
             <td style="text-align:left; border: none;" class="current">
                 <?php echo "-" . round($v, 3); ?>
@@ -618,7 +618,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Working State Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Working State Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($selected_state_sum[$rep],3); ?></td>
@@ -645,7 +645,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Working Local Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Working Local Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($selected_local_sum[$rep],3); ?></td>
@@ -662,7 +662,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Working County Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Working County Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($working_county_sum[$rep],3); ?></td>
@@ -679,7 +679,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Other Working Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Other Working Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($other_working_sum[$rep],3); ?></td>
@@ -696,7 +696,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Living State Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Living State Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($selected_living_state_sum[$rep],3); ?></td>
@@ -713,7 +713,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Living Local Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Living Local Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($living_local_sum[$rep],3); ?></td>
@@ -730,7 +730,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Living County Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Living County Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($living_county_sum[$rep],3); ?></td>
@@ -747,7 +747,7 @@ $total_time = sprintf('%d:%02d', $hours, $minutes);
                                  }
                                  ?>
                               <tr>
-                                 <td title="<?php   echo "Other Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $rep2.'-'.$rep;}else {echo $rep;}  ?></td>
+                                 <td title="<?php   echo "Other Tax - ".$title; ?>" style="text-align:left;"><?php if($rep2){echo $title.'-'.$rep;}else {echo $rep;}  ?></td>
                                  <td></td>
                                  <td class="current">  <?php echo "-".round($v,3); ?></td>
                                  <td class="ytd"><?php echo round($other_tax_sum[$rep],3); ?></td>
