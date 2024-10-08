@@ -3210,6 +3210,7 @@ public function getTaxdetailsdata($tax){
         $this->db->where('tax IS NOT NULL');
         $this->db->where('create_by', $user_id);
         $query = $this->db->get();
+        // echo $this->db->last_query(); die();
         if ($query->num_rows() > 0) {
            return $query->result_array();
        }
@@ -3897,7 +3898,6 @@ public function twelfth($quarter)
        $this->db->select('SUM(amount) as overalltotal_localtax');       
        $this->db->from('tax_history');
        $this->db->where('created_by', $user_id);
-       // Use where_in for multiple values in the same column
        $this->db->where_in('tax_type', ['local_tax' , 'living_local_tax']);
        $query = $this->db->get();
        // echo $this->db->last_query(); die();
