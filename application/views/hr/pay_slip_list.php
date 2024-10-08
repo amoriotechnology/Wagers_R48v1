@@ -88,8 +88,8 @@
                         </thead>
                         <tfoot>
                             <tr class="btnclr">
-                                <th colspan="4" style="text-align:right">Total:</th>
-                                <th class="text-center"></th>
+                                <th colspan="5" style="text-align:right">Total:</th>
+                              
                                 <th class="text-center"></th>
                                 <th class="text-center"></th>
                                 <th class="text-center"></th>
@@ -185,68 +185,44 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
         "pageLength": 10,
         "colReorder": true,
         "stateSave": true,
-        "footerCallback": function(row, data, start, end, display) {
-            var api = this.api();
+footerCallback: function(row, data, start, end, display) {
+    var api = this.api();
 
-            Number.prototype.padDigit = function () {
-               return (this < 10) ? '0' + this : this;
-            }
+    // Initialize total variables
+    var totalHours = 0;
+    var totalAmount = 0;
+    var totalOvertimeHours = 0;
+    var totalSalesCommission = 0;
 
-            function calculateTotal(columnIndex) {
-                var total = 0;
-                var mins = 0;
-                var hrs = 0;
+    function convertToHours(overtime) {
+    if (!overtime) return 0; // Return 0 for empty or undefined values
+    var timeParts = overtime.split(':');
+    var hours = parseInt(timeParts[0], 10) || 0; // Parse hours
+    var minutes = parseInt(timeParts[1], 10) || 0; // Parse minutes
+    return hours + minutes / 60; // Convert to decimal hours
+}
+function convertToHHMM(totalHours) {
+    var hours = Math.floor(totalHours); // Get whole hours
+    var minutes = Math.round((totalHours - hours) * 60); // Get remaining minutes
+    return hours + ':' + (minutes < 10 ? '0' : '') + minutes; // Format as hh:mm
+}
+    api.rows({ page: 'current' }).every(function() {
+        var rowData = this.data();
+ totalAmount += parseFloat(rowData.tot_amt) || 0;
+        totalOvertimeHours += convertToHours(rowData.overtime); // Use previous function
+        totalSalesCommission += parseFloat(rowData.sales_comm) || 0;
+    });
 
-                api.column(columnIndex, { page: 'current' }).data().each(function(value) {
+    // Convert total hours to hh:mm format for display
+    var totalOvertimeFormatted = convertToHHMM(totalOvertimeHours); // Use previous function
 
-                  if((/([01]?[0-9]|2[0-3]):[0-5][0-9]/.test(value) == true)) {
+    // Display the totals in the footer
+    
+    $(api.column(5).footer()).html(totalAmount.toFixed(2)); // Column index for tot_amt, formatted to 2 decimal places
+    $(api.column(6).footer()).html(totalOvertimeFormatted); // Column index for overtime
+    $(api.column(7).footer()).html(totalSalesCommission.toFixed(2)); // Column index for sales_comm, formatted to 2 decimal places
+},
 
-                     var t2 = value.split(':');
-                     mins += parseFloat(t2[1]);
-                     minhrs = Math.floor(parseInt(mins / 60));
-                     hrs += parseFloat(t2[0]) + minhrs;
-                     mins = (mins % 60);
-                     total = hrs.padDigit() + ':' + mins.padDigit();
-                    
-                  } else if (value && typeof value === 'string') {
-                        total += (parseFloat(value.replace(/[^0-9.-]/g, '')) || 0); 
-                    }
-                });
-
-                return total;
-            }
-
-
-        function calculateTime(columnIndex) {
-               var t1 = "00:00";
-               var mins = 0;
-               var hrs = 0;
-               api.column(columnIndex, { page: 'current' }).data().each(function (value) {
-                if((/([01]?[0-9]|2[0-3]):[0-5][0-9]/.test(value) == true) == true) {
-                    var t2 = value.split(':');
-                } else {
-                    var t2 = (value * 24);
-                    var t2 = t2 + "00";
-                }
-                mins += parseFloat(t2[1]);
-                minhrs = Math.floor(parseInt(mins / 60));
-                hrs += parseFloat(t2[0]) + minhrs;
-                mins = mins % 60;
-                total = hrs.padDigit() + ':' + mins.padDigit();
-               });
-               return t1;
-            }
-
-            var totalHours = calculateTotal(4);
-            var totalAmount = calculateTotal(5);
-            var overTime = calculateTime(6);
-            var salesCommision = calculateTotal(7);
-            
-            $(api.column(4).footer()).html(totalHours);
-            $(api.column(5).footer()).html(totalAmount.toFixed(2));
-            $(api.column(6).footer()).html(overTime);
-            $(api.column(7).footer()).html(salesCommision.toFixed(2));
-        },
         "stateSaveCallback": function(settings, data) {
             localStorage.setItem('quotation', JSON.stringify(data));
         },

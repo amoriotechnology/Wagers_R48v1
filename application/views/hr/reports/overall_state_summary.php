@@ -383,6 +383,90 @@
         <tfoot></tfoot>
     </table>
 
+
+<!-- City Tax -->
+<div class="city_tax">
+   <p  style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>CITY TAX </label></p>
+   <table class="table table-bordered" cellspacing="0" width="100%" id="CityTax">
+      <thead class="btnclr">
+         <tr>
+            <th>S.No</th>
+            <th>Employee Name</th>
+            <th>Employee Tax</th>
+            <th>Working Local Tax</th>
+            <th>Working Local Tax</th>
+            <th>Living Local Tax</th>
+            <th>Month</th>
+            <th>Timesheet ID</th>
+            <th>Living Location Tax - Employee Contributions</th>
+         </tr>
+      </thead>
+      <tbody>
+         <?php 
+         if($getEmployeeContributions > 0){
+         $c=1;
+         foreach ($getEmployeeContributions as $employeeData){ ?>
+               <tr>
+                  <td><?php  echo $c; ?></td>
+                  <td><?php echo $employeeData['first_name'] . ' ' . $employeeData['last_name']; ?></td>
+                  <td><?php echo $employeeData['employee_tax']; ?></td>
+                  <td><?php echo $employeeData['local_tax']; ?></td>
+                  <td><?php echo $employeeData['living_local_tax']; ?></td>
+                  <td><?php echo $employeeData['month']; ?></td>
+                  <td><?php echo $employeeData['time_sheet_id']; ?></td>
+                  <td><?php echo round($employeeData['amount'],3); ?></td>
+               </tr>
+         <?php $c++; } }else{ ?>
+            <tr>
+              <td colspan="9" class="text-center">No Data Found</td>
+            </tr>
+         <?php } ?>
+      </tbody>
+   </table>
+</div>
+
+<!-- County Tax -->
+<div class="county_tax">
+   <p  style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>COUNTY TAX </label></p>
+   <table class="table table-bordered" cellspacing="0" width="100%" id="CountyTax">
+      <thead class="btnclr">
+         <tr>
+            <th>S.No</th>
+            <th>Employee Name</th>
+            <th>Employee Tax</th>
+            <th>Working Local Tax</th>
+            <th>Working Local Tax</th>
+            <th>Living Local Tax</th>
+            <th>Month</th>
+            <th>Timesheet ID</th>
+            <th>Living Location Tax - Employee Contributions</th>
+         </tr>
+      </thead>
+      <tbody>
+         <?php 
+         if($getEmployeeContributions > 0){
+         $c=1;
+         foreach ($getEmployeeContributions as $employeeData){ ?>
+               <tr>
+                  <td><?php  echo $c; ?></td>
+                  <td><?php echo $employeeData['first_name'] . ' ' . $employeeData['last_name']; ?></td>
+                  <td><?php echo $employeeData['employee_tax']; ?></td>
+                  <td><?php echo $employeeData['local_tax']; ?></td>
+                  <td><?php echo $employeeData['living_local_tax']; ?></td>
+                  <td><?php echo $employeeData['month']; ?></td>
+                  <td><?php echo $employeeData['time_sheet_id']; ?></td>
+                  <td><?php echo round($employeeData['amount'],3); ?></td>
+               </tr>
+         <?php $c++; } }else{ ?>
+            <tr>
+              <td colspan="9" class="text-center">No Data Found</td>
+            </tr>
+         <?php } ?>
+      </tbody>
+   </table>
+</div>
+
+
 </div>
 
 
@@ -688,7 +772,22 @@ function populateTable(response) {
         });
 
         employeeContributions.forEach(item => {
-            const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+              let taxKey = '';
+
+    // Check if item.tax is not null or undefined
+    if (item.tax) {
+        // Update taxKey using item values
+        taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+
+        // Populate the allTaxTypes object
+        allTaxTypes[taxKey] = item.taxType || '';
+
+        // Increment the count in taxTypeCounts
+        taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
+    } else {
+        console.warn('item.tax is null or undefined:', item);
+    }
+            //const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
             allTaxTypes[taxKey] = item.taxType || '';
             taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
         });
@@ -704,7 +803,7 @@ function populateTable(response) {
 
         // Create table headers dynamically
         if (Object.keys(taxTypeMap).length > 0) {
-            let taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>S.No</th><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th>";
+            let taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>S.No</th><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th><th rowspan='2' style='border-bottom:none;text-align:center'>Gross</th><th rowspan='2' style='border-bottom:none;text-align:center'>Net</th>";
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 const displayTaxType = (taxType === "living_state_tax") ? "LIVING STATE TAX" : "WORKING STATE TAX";
@@ -717,11 +816,12 @@ function populateTable(response) {
                 taxes.forEach(taxKey => {
                     const taxName = taxKey.split('-')[0];
                     const code = taxKey.split('-')[1];
-                    taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + code + "</th>";
+                    var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'Code is something else';
+                    taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + changecode + "</th>";
                 });
             });
 
-            taxHeaders += "</tr><tr class='btnclr'><th></th><th></th>"; // Add empty cell for S.No
+            taxHeaders += "</tr><tr class='btnclr'><th></th><th></th><th></th><th></th>"; // Add empty cell for S.No
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 taxes.forEach(() => {
@@ -733,43 +833,92 @@ function populateTable(response) {
 
             // Consolidate contributions
             const consolidatedContributions = {};
+            const totalEmployeeContributions = {};
+            const totalEmployeeDeduction = {};
             employerContributions.forEach(item => {
                 const employeeName = item.employee_name;
                 const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
                 if (!consolidatedContributions[employeeName]) {
                     consolidatedContributions[employeeName] = {};
+                     totalEmployeeContributions[employeeName] = 0; 
+                     totalEmployeeDeduction[employeeName] = 0; 
+                      
                 }
                 if (!consolidatedContributions[employeeName][taxKey]) {
-                    consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
+                    consolidatedContributions[employeeName][taxKey] = { employee: "0.00", employer: "0.00" };
                 }
-                consolidatedContributions[employeeName][taxKey].employer = parseFloat(item.total_amount).toFixed(3) || "0.000";
+                consolidatedContributions[employeeName][taxKey].employer = parseFloat(item.total_amount).toFixed(3) || "0.00";
             });
 
             employeeContributions.forEach(item => {
                 const employeeName = item.employee_name;
-                const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+                       let taxKey = '';
+
+    // Check if item.tax is not null or undefined
+    if (item.tax) {
+        // Update taxKey using item values
+        taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+
+        // Populate the allTaxTypes object
+        allTaxTypes[taxKey] = item.taxType || '';
+
+        // Increment the count in taxTypeCounts
+        taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
+    } else {
+        console.warn('item.tax is null or undefined:', item);
+    }
+               // const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
                 if (!consolidatedContributions[employeeName]) {
                     consolidatedContributions[employeeName] = {};
+                    totalEmployeeContributions[employeeName] = 0;
+                      totalEmployeeDeduction[employeeName] = 0; 
                 }
                 if (!consolidatedContributions[employeeName][taxKey]) {
-                    consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
+                    consolidatedContributions[employeeName][taxKey] = { employee: "0.00", employer: "0.00" };
                 }
-                consolidatedContributions[employeeName][taxKey].employee = parseFloat(item.total_amount).toFixed(3) || "0.000";
+                const employeeContribution = parseFloat(item.total_amount).toFixed(3) || "0.00";
+                 const employeegross = parseFloat(item.gross).toFixed(3) || "0.00";
+                consolidatedContributions[employeeName][taxKey].employee = parseFloat(item.total_amount).toFixed(3) || "0.00";
+                totalEmployeeContributions[employeeName] += parseFloat(item.total_amount).toFixed(3);
+                 totalEmployeeDeduction[employeeName]+= parseFloat(item.total_deduction).toFixed(3);
+              
             });
 
             // Populate rows for each employee
             const tbody = table.find("tbody");
             let serialNumber = 1; // Initialize serial number
+            let totalGross = 0;   // Initialize total gross
+let totalNet = 0; 
             Object.keys(consolidatedContributions).forEach(employeeName => {
                 const contributions = consolidatedContributions[employeeName];
                 const row = $("<tr>");
                 row.append("<td>" + serialNumber++ + "</td>"); // Add serial number
                 row.append("<td>" + employeeName + "</td>");
+                 let employeeGross = 0;
+                 let employeeDeduction = 0;
+    // Find gross for the current employee from all contributions
+    for (let taxType of ['state_tax', 'living_state_tax']) {
+        const taxContributions = response.employee_contribution[taxType].filter(item => item.employee_name === employeeName);
+        taxContributions.forEach(item => {
+            employeeGross = item.gross; // Assuming gross is a number, not a string
+            employeeDeduction = item.total_deduction; // Assuming gross is a number, not a string
 
+        });
+    }
+
+    row.append("<td>$" + employeeGross.toFixed(3) + "</td>"); // Add gross amount
+console.log(totalEmployeeDeduction);
+    // Calculate net amount
+    const employeeContribution =  totalEmployeeDeduction[employeeName] || 0; // Safe fallback to 0
+    const netAmount = employeeGross - employeeDeduction;
+    console.log("Gross : "+employeeGross+"-"+employeeDeduction+"="+netAmount);
+    row.append("<td>$" + netAmount.toFixed(3) + "</td>"); // Add net amount
+     totalGross += employeeGross; 
+    totalNet += netAmount;
                 Object.keys(taxTypeMap).forEach(taxType => {
                     const taxes = taxTypeMap[taxType];
                     taxes.forEach(taxKey => {
-                        const taxData = contributions[taxKey] || { employee: "0.000", employer: "0.000" };
+                        const taxData = contributions[taxKey] || { employee: "0.00", employer: "0.00" };
                         row.append("<td>$" + taxData.employee + "</td>");
                         row.append("<td>$" + taxData.employer + "</td>");
                     });
@@ -781,7 +930,8 @@ function populateTable(response) {
             // Populate footer with total contributions
             const tfoot = table.find("tfoot");
             const footerRow = $("<tr class='btnclr'>").append("<td colspan='2'>Total</td>");
-
+            footerRow.append("<td>$" + totalGross.toFixed(3) + "</td>"); // Total Gross
+footerRow.append("<td>$" + totalNet.toFixed(3) + "</td>");   // Total Net
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 taxes.forEach(taxKey => {
@@ -820,7 +970,7 @@ function populateTable(response) {
    var rowCount = $('#livingStateTaxTable tr').length;
     stateTaxTable.DataTable();
    // if(rowCount >= 2){
-      // livingStateTaxTable.DataTable();
+      livingStateTaxTable.DataTable();
     //}
 }
 
@@ -842,7 +992,7 @@ function populateTable(response) {
 //     window.open('data:application/vnd.ms-excel,' + encodeURIComponent(html));
 // }
 // $("#download").click(function (event) {
-//  	generateExcel($("#ProfarmaInvList"));
+//    generateExcel($("#ProfarmaInvList"));
 // });
 
 $(document).ready(function() {
@@ -860,6 +1010,26 @@ $(document).ready(function() {
        addTableToWorkbook('.living_state', 'Data Table 3');
 
        XLSX.writeFile(wb, 'data_tables.xlsx');
+   });
+});
+
+$(document).ready(function() {
+   $('#CityTax').DataTable({
+      "pageLength": 10,  
+      "searching": true, 
+      "ordering": true,  
+      "lengthChange": true, 
+      "info": true, 
+      "paging": true 
+   });
+
+   $('#CountyTax').DataTable({
+      "pageLength": 10,  
+      "searching": true, 
+      "ordering": true,  
+      "lengthChange": true, 
+      "info": true, 
+      "paging": true 
    });
 });
 
