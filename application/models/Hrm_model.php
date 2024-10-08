@@ -945,7 +945,7 @@ public function federal_tax_report($emp_name = null, $date = null, $status = nul
 public function so_tax_report_employee($employee_name = null, $date = null, $status = null)
 {
     $user_id = $this->session->userdata('user_id');
-    $this->db->select('c.id,c.first_name, c.middle_name, c.last_name, c.employee_tax, ti.cheque_date');
+    $this->db->select('b.total_amount as deduction,c.id,c.first_name, c.middle_name, c.last_name, c.employee_tax, ti.cheque_date');
     $this->db->select('(b.f_tax) AS fftax');
     $this->db->select('(b.m_tax) AS mmtax');
     $this->db->select('(b.s_tax) AS sstax');
