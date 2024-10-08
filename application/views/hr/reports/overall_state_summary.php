@@ -643,6 +643,7 @@ $(document).ready(function () {
         });
     });
 });
+var total_federal_deduction = 0;
 function federal_summary(){
 
     
@@ -671,7 +672,7 @@ function federal_summary(){
                 var row = "<tr>";
                 row += "<td style='text-align: center;'>" + (i + 1) + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['first_name'] || '') + " " +(employee['middle_name'] || '')+" "+ (employee['last_name'] || '') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['employee_tax'] || '') + "</td>";
+                row += "<td style='text-align: center;'>" + (employee['deduction'] || '') + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['fftax'] ? parseFloat(employee['fftax']).toFixed(2) : '0.00') + "</td>";
                 row += "<td style='text-align: center;'>" + (employer['fftax'] ? parseFloat(employer['fftax']).toFixed(2) : '0.00') + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['sstax'] ? parseFloat(employee['sstax']).toFixed(2) : '0.00') + "</td>";
@@ -727,6 +728,9 @@ function federal_summary(){
             totalRow += "<td>" + totalEmployerContribution['UnemploymentTax'].toFixed(2) + "</td>";
             totalRow += "</tr>";
             tfoot.append(totalRow);
+            var total_federal_deduction =  totalEmployeeContribution['FederalIncomeTax']+
+            totalEmployeeContribution['SocialSecurityTax']+totalEmployeeContribution['MedicareTax']+totalEmployeeContribution['UnemploymentTax'];
+            console.log("Federal :"+total_federal_deduction);
             if ($.fn.DataTable.isDataTable('#federal_summary')) {
                 $('#federal_summary').DataTable().destroy(); 
             }

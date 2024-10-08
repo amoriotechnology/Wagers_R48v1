@@ -252,15 +252,13 @@ public function social_taxsearch(){
       if ($data['employe']) {
         $aggregated = [];
      $aggregated_employe = [];
-// print_r($data['employe']); // Check if data is present
-// echo "Processing employee data...\n";
 foreach ($data['employe'] as $row) {
-  //  echo "Processing employee ID: " . $row['id'] . "\n"; // Debugging line
-    $key = $row['id'];
+  $key = $row['id'];
     if (!isset($aggregated_employe[$key])) {
         $aggregated_employe[$key] = [
             'id' => $row['id'],
             'first_name' => $row['first_name'],
+            'deduction' => $row['deduction'],
             'middle_name' => $row['middle_name'],
             'last_name' => $row['last_name'],
             'employee_tax' => $row['employee_tax'],
@@ -270,15 +268,14 @@ foreach ($data['employe'] as $row) {
             'uutax' => 0,
         ];
     }
-    // Aggregate the taxes
     $aggregated_employe[$key]['fftax'] += $row['fftax'];
     $aggregated_employe[$key]['mmtax'] += $row['mmtax'];
     $aggregated_employe[$key]['sstax'] += $row['sstax'];
     $aggregated_employe[$key]['uutax'] += $row['uutax'];
 }
-// Convert aggregated data to array format
+
 $data['aggregated_employe'] = array_values($aggregated_employe);
-//print_r($data['aggregated_employe']); // Check the final output
+
     } else {
         $data['aggregated_employe'] = [];
     }
