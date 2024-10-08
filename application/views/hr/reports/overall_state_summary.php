@@ -688,7 +688,22 @@ function populateTable(response) {
         });
 
         employeeContributions.forEach(item => {
-            const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+              let taxKey = '';
+
+    // Check if item.tax is not null or undefined
+    if (item.tax) {
+        // Update taxKey using item values
+        taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+
+        // Populate the allTaxTypes object
+        allTaxTypes[taxKey] = item.taxType || '';
+
+        // Increment the count in taxTypeCounts
+        taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
+    } else {
+        console.warn('item.tax is null or undefined:', item);
+    }
+            //const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
             allTaxTypes[taxKey] = item.taxType || '';
             taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
         });
@@ -704,7 +719,7 @@ function populateTable(response) {
 
         // Create table headers dynamically
         if (Object.keys(taxTypeMap).length > 0) {
-            let taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>S.No</th><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th>";
+            let taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>S.No</th><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th><th rowspan='2' style='border-bottom:none;text-align:center'>Gross</th><th rowspan='2' style='border-bottom:none;text-align:center'>Net</th>";
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 const displayTaxType = (taxType === "living_state_tax") ? "LIVING STATE TAX" : "WORKING STATE TAX";
@@ -721,7 +736,7 @@ function populateTable(response) {
                 });
             });
 
-            taxHeaders += "</tr><tr class='btnclr'><th></th><th></th>"; // Add empty cell for S.No
+            taxHeaders += "</tr><tr class='btnclr'><th></th><th></th><th></th><th></th>"; // Add empty cell for S.No
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 taxes.forEach(() => {
@@ -733,43 +748,92 @@ function populateTable(response) {
 
             // Consolidate contributions
             const consolidatedContributions = {};
+            const totalEmployeeContributions = {};
+            const totalEmployeeDeduction = {};
             employerContributions.forEach(item => {
                 const employeeName = item.employee_name;
                 const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
                 if (!consolidatedContributions[employeeName]) {
                     consolidatedContributions[employeeName] = {};
+                     totalEmployeeContributions[employeeName] = 0; 
+                     totalEmployeeDeduction[employeeName] = 0; 
+                      
                 }
                 if (!consolidatedContributions[employeeName][taxKey]) {
-                    consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
+                    consolidatedContributions[employeeName][taxKey] = { employee: "0.00", employer: "0.00" };
                 }
-                consolidatedContributions[employeeName][taxKey].employer = parseFloat(item.total_amount).toFixed(3) || "0.000";
+                consolidatedContributions[employeeName][taxKey].employer = parseFloat(item.total_amount).toFixed(3) || "0.00";
             });
 
             employeeContributions.forEach(item => {
                 const employeeName = item.employee_name;
-                const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+                       let taxKey = '';
+
+    // Check if item.tax is not null or undefined
+    if (item.tax) {
+        // Update taxKey using item values
+        taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
+
+        // Populate the allTaxTypes object
+        allTaxTypes[taxKey] = item.taxType || '';
+
+        // Increment the count in taxTypeCounts
+        taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
+    } else {
+        console.warn('item.tax is null or undefined:', item);
+    }
+               // const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
                 if (!consolidatedContributions[employeeName]) {
                     consolidatedContributions[employeeName] = {};
+                    totalEmployeeContributions[employeeName] = 0;
+                      totalEmployeeDeduction[employeeName] = 0; 
                 }
                 if (!consolidatedContributions[employeeName][taxKey]) {
-                    consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
+                    consolidatedContributions[employeeName][taxKey] = { employee: "0.00", employer: "0.00" };
                 }
-                consolidatedContributions[employeeName][taxKey].employee = parseFloat(item.total_amount).toFixed(3) || "0.000";
+                const employeeContribution = parseFloat(item.total_amount).toFixed(3) || "0.00";
+                 const employeegross = parseFloat(item.gross).toFixed(3) || "0.00";
+                consolidatedContributions[employeeName][taxKey].employee = parseFloat(item.total_amount).toFixed(3) || "0.00";
+                totalEmployeeContributions[employeeName] += parseFloat(item.total_amount).toFixed(3);
+                 totalEmployeeDeduction[employeeName]+= parseFloat(item.total_deduction).toFixed(3);
+              
             });
 
             // Populate rows for each employee
             const tbody = table.find("tbody");
             let serialNumber = 1; // Initialize serial number
+            let totalGross = 0;   // Initialize total gross
+let totalNet = 0; 
             Object.keys(consolidatedContributions).forEach(employeeName => {
                 const contributions = consolidatedContributions[employeeName];
                 const row = $("<tr>");
                 row.append("<td>" + serialNumber++ + "</td>"); // Add serial number
                 row.append("<td>" + employeeName + "</td>");
+                 let employeeGross = 0;
+                 let employeeDeduction = 0;
+    // Find gross for the current employee from all contributions
+    for (let taxType of ['state_tax', 'living_state_tax']) {
+        const taxContributions = response.employee_contribution[taxType].filter(item => item.employee_name === employeeName);
+        taxContributions.forEach(item => {
+            employeeGross = item.gross; // Assuming gross is a number, not a string
+            employeeDeduction = item.total_deduction; // Assuming gross is a number, not a string
 
+        });
+    }
+
+    row.append("<td>$" + employeeGross.toFixed(3) + "</td>"); // Add gross amount
+console.log(totalEmployeeDeduction);
+    // Calculate net amount
+    const employeeContribution =  totalEmployeeDeduction[employeeName] || 0; // Safe fallback to 0
+    const netAmount = employeeGross - employeeDeduction;
+    console.log("Gross : "+employeeGross+"-"+employeeDeduction+"="+netAmount);
+    row.append("<td>$" + netAmount.toFixed(3) + "</td>"); // Add net amount
+     totalGross += employeeGross; 
+    totalNet += netAmount;
                 Object.keys(taxTypeMap).forEach(taxType => {
                     const taxes = taxTypeMap[taxType];
                     taxes.forEach(taxKey => {
-                        const taxData = contributions[taxKey] || { employee: "0.000", employer: "0.000" };
+                        const taxData = contributions[taxKey] || { employee: "0.00", employer: "0.00" };
                         row.append("<td>$" + taxData.employee + "</td>");
                         row.append("<td>$" + taxData.employer + "</td>");
                     });
@@ -781,7 +845,8 @@ function populateTable(response) {
             // Populate footer with total contributions
             const tfoot = table.find("tfoot");
             const footerRow = $("<tr class='btnclr'>").append("<td colspan='2'>Total</td>");
-
+            footerRow.append("<td>$" + totalGross.toFixed(3) + "</td>"); // Total Gross
+footerRow.append("<td>$" + totalNet.toFixed(3) + "</td>");   // Total Net
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 taxes.forEach(taxKey => {
