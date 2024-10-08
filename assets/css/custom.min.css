@@ -2,8 +2,7 @@
 
 
 
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i);@import url(https://fonts.googleapis.com/css?family=Alegreya+Sans:100,100i,300,300i,400,400i,500,500i,700,700i,800,800i,900,900i);.layout-boxed .wrapper,.wrapper{position:relative;min-height:100%}.layout-boxed .wrapper,.wrapper,body,html{min-height:100%}.chat_list .chat-avatar i,.chat_list .ctext-wrap i{font-style:normal;font-size:12px}.icon-section,.navbar-nav>.messages-menu>.dropdown-menu>li .menu>li>a:after,.user-panel:after,.wrapper:after{clear:both}.layout-boxed body,.layout-boxed html{height:100%}body{overflow-x:hidden;overflow-y:auto;color:#374767;background-color:#f1f3f6;font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif}.wrapper{overflow:hidden;background-image: url(https://themebing.com/wp/prolancer/wp-content/uploads/2021/10/banner-4.jpg);background-position: -509% 0%;
-    background-repeat: no-repeat;}.wrapper:after,.wrapper:before{content:" ";background-color: #0e1a62;
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i);@import url(https://fonts.googleapis.com/css?family=Alegreya+Sans:100,100i,300,300i,400,400i,500,500i,700,700i,800,800i,900,900i);.layout-boxed .wrapper,.wrapper{position:relative;min-height:100%}.layout-boxed .wrapper,.wrapper,body,html{min-height:100%}.chat_list .chat-avatar i,.chat_list .ctext-wrap i{font-style:normal;font-size:12px}.icon-section,.navbar-nav>.messages-menu>.dropdown-menu>li .menu>li>a:after,.user-panel:after,.wrapper:after{clear:both}.layout-boxed body,.layout-boxed html{height:100%}body{overflow-x:hidden;overflow-y:auto;color:#374767;background-color:#f1f3f6;font-family:'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif}.wrapper:after,.wrapper:before{content:" ";background-color: #0e1a62;
     width: 100%;
     height: 100%;
     position: absolute;

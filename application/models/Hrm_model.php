@@ -4449,11 +4449,11 @@ public function f940_excess_emp()
 public function get_paytotal()
    {
        $user_id = $this->session->userdata('user_id');
-        $this->db->select('SUM(total_amount) as total_grosspay');
-        $this->db->from('info_payslip');
-        $this->db->where('tax IS NOT NULL');
+        $this->db->select('SUM(above_extra_sum) as total_grosspay');
+        $this->db->from('timesheet_info');
         $this->db->where('create_by', $user_id);
         $query = $this->db->get();
+        // echo $this->db->last_query(); die;
        if ($query->num_rows() > 0) {
            return $query->result_array();
        }

@@ -5890,26 +5890,10 @@ public function form940Form()
     $data['get_sc_info']  = $this->Hrm_model->get_sc_info();
     $data['get_paytotal'] = $this->Hrm_model->get_paytotal();
     $data['get_userlist'] = $CI->db->select('*')->from('users')->where('user_id',$this->session->userdata('user_id'))->get()->result_array();
-//     $data['amountGreaterThan'] = $CI->db
-//     ->select('SUM(total_amount) AS totalAmount')
-//     ->from('info_payslip')
-//     ->where('total_amount >', 7000)
-//     ->where('create_by', $CI->session->userdata('user_id'))
-//     ->get()
-//     ->row_array(); // Using row_array() if expecting a single result or result_array() for multiple results.
-//     if (!empty($data['amountGreaterThan']['totalAmount'])) {
-//       // If there's a sum, it will be stored in 'totalAmount'.
-//       $totalAmount = $data['amountGreaterThan']['totalAmount'];
-//   } else {
-//       // Handle the case where there's no sum calculated (e.g., no matching records).
-//       $totalAmount = 0;
-//   }
   $data['amountGreaterThan'] = $this->Hrm_model->f940_excess_emp();
 $totalAmount = 0;
-// Check if the query returned any result before accessing it
 if ($data['amountGreaterThan']) {
     foreach ($data['amountGreaterThan'] as $row) {
-        // Accessing each row of the result and its 'totalAmount' value
         $totalAmount += $row['totalAmount'];
     }
     $value = $totalAmount / 2;

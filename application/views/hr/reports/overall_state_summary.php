@@ -730,7 +730,7 @@ function federal_summary(){
             tfoot.append(totalRow);
             var total_federal_deduction =  totalEmployeeContribution['FederalIncomeTax']+
             totalEmployeeContribution['SocialSecurityTax']+totalEmployeeContribution['MedicareTax']+totalEmployeeContribution['UnemploymentTax'];
-            console.log("Federal :"+total_federal_deduction);
+            localStorage.setItem("totalfederaldeduction", total_federal_deduction);
             if ($.fn.DataTable.isDataTable('#federal_summary')) {
                 $('#federal_summary').DataTable().destroy(); 
             }
@@ -767,6 +767,7 @@ function populateTable(response) {
     function generateTaxTable(taxType, employerContributions, employeeContributions, table) {
         const allTaxTypes = {};
         const taxTypeCounts = {};
+      //   const FederalsummaryTotal = localStorage.getItem("totalfederaldeduction");
         
         // Collect unique tax codes
         employerContributions.forEach(item => {
@@ -911,10 +912,12 @@ let totalNet = 0;
     }
 
     row.append("<td>$" + employeeGross.toFixed(3) + "</td>"); // Add gross amount
-console.log(totalEmployeeDeduction);
+console.log(totalEmployeeDeduction,'totalEmployeeDeduction');
     // Calculate net amount
     const employeeContribution =  totalEmployeeDeduction[employeeName] || 0; // Safe fallback to 0
+    console.log(employeeContribution, "employeeContribution");
     const netAmount = employeeGross - employeeDeduction;
+    console.log(netAmount, "netAmount netAmount");
     console.log("Gross : "+employeeGross+"-"+employeeDeduction+"="+netAmount);
     row.append("<td>$" + netAmount.toFixed(3) + "</td>"); // Add net amount
      totalGross += employeeGross; 

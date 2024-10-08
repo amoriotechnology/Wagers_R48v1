@@ -200,22 +200,13 @@
 
 
 
-                  <?php
-// Check if $get_paytotal is set and not empty, and that total_grosspay has a value
-// if (isset($get_paytotal[0]['total_grosspay']) && isset($get_sc_info[0]['salebalanceamount'])) {
-//     $total_grosspay = $get_paytotal[0]['total_grosspay'] +  $get_sc_info[0]['salebalanceamount'];
-// }else{
-
-    $total_grosspay = $get_paytotal[0]['total_grosspay'];
-// }
- 
-
-$parts = explode('.', number_format($total_grosspay, 2, '.', ''));
-// Preparing the integer and decimal parts
-$integerPart = $parts[0];
-$dollar_value=$integerPart;
-$decimalPart =$parts[1];
-$cent_value=$decimalPart;
+<?php
+  $total_grosspay = $get_paytotal[0]['total_grosspay'];
+  $parts = explode('.', number_format($total_grosspay, 2, '.', ''));
+  $integerPart = $parts[0];
+  $dollar_value=$integerPart;
+  $decimalPart =$parts[1];
+  $cent_value=$decimalPart;
 ?>
 
  
@@ -439,6 +430,8 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 .ein-number {
   width: 20px;
   height: 20px;
+  position: relative;
+  bottom: 4px;
 }
 .ein-number-2 {
   width: 15px;
@@ -460,13 +453,13 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 }
 .two-digit-2 {
   position: absolute;
-  top: 90px;
+  top: 85px;
   left: 289px;
 }
 /* name-box */
 .name-text {
   position: absolute;
-  top: 120px;
+  top: 116px;
   left: 179px;
 }
 .name-text input {
@@ -476,7 +469,7 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 /* trade-box */
 .trade-text {
   position: absolute;
-  top: 150px;
+  top: 146px;
   left: 150px;
 }
 .trade-text input {
@@ -486,7 +479,7 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 /* address-text */
 .Address-text {
   position: absolute;
-  top: 182px;
+  top: 176px;
   left: 105px;
 }
 .Address-text input {
@@ -496,7 +489,7 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 /* city-text */
 .city-text {
   position: absolute;
-  top: 225px;
+  top: 222px;
   left: 105px;
 }
 .city-text input {
@@ -506,7 +499,7 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 /* state-text */
 .state-text {
   position: absolute;
-  top: 228px;
+  top: 223px;
   left: 355px;
 }
 .state-text input {
@@ -516,7 +509,7 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 /* zipcode-text */
 .zipcode-text {
   position: absolute;
-  top: 229px;
+  top: 223px;
   left: 410px;
 }
 .zipcode-text input {
@@ -627,8 +620,8 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 /* total-emp-payment */
 .total-emp-payment {
   position: absolute;
-  top: 459px;
-  left: 676px;
+  top: 454px;
+  left: 677px;
 }
 .total-emp-payment input {
   height: 20px;
@@ -771,13 +764,13 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 /* ein */
 .trade-name {
   position: absolute;
-  top: 77px;
+  top: 66px;
   left: 83px;
 }
 .ein {
   position: absolute;
-  top: 80px;
-  left: 530px;
+  top: 73px;
+  left: 533px;
 }
 .ein input {
   height: 20px;
@@ -848,23 +841,23 @@ $decimalPart = isset($parts[1]) ? $parts[1] : '00';
 }
 .printname {
   position: absolute;
-  top: 535px;
+  top: 526px;
   left: 489px;
 
 }
 .printitle {
   position: absolute;
-  top: 561px;
+  top: 558px;
   left: 490px;
 }
 .date {
   position: absolute;
-  top: 603px;
-  left: 156px;
+  top: 598px;
+  left: 155px;
 }
 .dayphone {
   position: absolute;
-  top: 593px;
+  top: 588px;
   left: 544px;
 
 }
