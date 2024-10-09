@@ -75,9 +75,9 @@
                             <tr class="sortableTable__header btnclr">
                                 <th rowspan="2" class="1 value" data-col="1" style="height: 45.0114px; text-align:center; "> <?php echo 'S.NO'?> </th>
                                 <th rowspan="2" class="2 value" data-col="2" style="text-align:center; width: 300px;"> <?php echo 'Employee Name'?> </th>
-                                <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 150px; "> <?php echo 'Employee Tax'?> </th>
+                                <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 150px; "> <?php echo 'Gross'?> </th>
 
-                              
+                                <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 150px; "> <?php echo 'Net'?> </th>
                                
                                 <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Federal Income Tax')?> </th>
                                 <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Social Security Tax')?> </th>
@@ -98,8 +98,9 @@
                         </thead>
                         <tfoot>
                             <tr class="btnclr">
-                                <th colspan="3" style="text-align: end;">Total</th>
+                                <th colspan="2" style="text-align: end;">Total</th>
                                 <th class="text-center"></th>
+                                   <th class="text-center"></th>
                                 <th class="text-center"></th>
                                 <th class="text-center"></th>
                                 <th class="text-center"></th>
@@ -160,8 +161,8 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
          "columns": [
          { "data": "table_id" },
          { "data": "first_name" },
-         { "data": "employee_tax" },
-     
+         { "data": "gross" },
+       { "data": "net" },
          { "data": "f_employee" },
          { "data": "f_employer" },
          { "data": "socialsecurity_employee" },
@@ -173,7 +174,7 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
          ],
         "columnDefs": [{
             "orderable": false,
-            "targets": [0, 10],
+            "targets": [0, 11],
             searchBuilder: {
                 defaultCondition: '='
             },
@@ -213,29 +214,35 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
                 });
                 return total;
             }
-            var federalemployeeContributionTotal = calculateTotal(3);
-            var federalemployerContributionTotal = calculateTotal(4);
+            var totalgross = calculateTotal(2);
+            var totalnet = calculateTotal(3);
+
+            var federalemployeeContributionTotal = calculateTotal(4);
+            var federalemployerContributionTotal = calculateTotal(5);
             
-            var socialemployeeContributionTotal = calculateTotal(5);
-            var socialemployerContributionTotal = calculateTotal(6);
+            var socialemployeeContributionTotal = calculateTotal(6);
+            var socialemployerContributionTotal = calculateTotal(7);
 
-            var medicareemployeeContributionTotal = calculateTotal(7);
-            var medicareemployerContributionTotal = calculateTotal(8);
+            var medicareemployeeContributionTotal = calculateTotal(8);
+            var medicareemployerContributionTotal = calculateTotal(9);
 
-            var unemploymentemployeeContributionTotal = calculateTotal(9);
-            var unemploymentemployerContributionTotal = calculateTotal(10);
+            var unemploymentemployeeContributionTotal = calculateTotal(10);
+            var unemploymentemployerContributionTotal = calculateTotal(11);
 
-            $(api.column(3).footer()).html('$' + federalemployeeContributionTotal.toFixed(2));
-            $(api.column(4).footer()).html('$' + federalemployerContributionTotal.toFixed(2));
+             $(api.column(2).footer()).html('$' + totalgross.toFixed(2));
+              $(api.column(3).footer()).html('$' + totalnet.toFixed(2));
 
-            $(api.column(5).footer()).html('$' + socialemployeeContributionTotal.toFixed(2));
-            $(api.column(6).footer()).html('$' + socialemployerContributionTotal.toFixed(2));
+            $(api.column(4).footer()).html('$' + federalemployeeContributionTotal.toFixed(2));
+            $(api.column(5).footer()).html('$' + federalemployerContributionTotal.toFixed(2));
 
-            $(api.column(7).footer()).html('$' + medicareemployeeContributionTotal.toFixed(2));
-            $(api.column(8).footer()).html('$' + medicareemployerContributionTotal.toFixed(2));
+            $(api.column(6).footer()).html('$' + socialemployeeContributionTotal.toFixed(2));
+            $(api.column(7).footer()).html('$' + socialemployerContributionTotal.toFixed(2));
 
-            $(api.column(9).footer()).html('$' + unemploymentemployeeContributionTotal.toFixed(2));
-            $(api.column(10).footer()).html('$' + unemploymentemployerContributionTotal.toFixed(2));
+            $(api.column(8).footer()).html('$' + medicareemployeeContributionTotal.toFixed(2));
+            $(api.column(9).footer()).html('$' + medicareemployerContributionTotal.toFixed(2));
+
+            $(api.column(10).footer()).html('$' + unemploymentemployeeContributionTotal.toFixed(2));
+            $(api.column(11).footer()).html('$' + unemploymentemployerContributionTotal.toFixed(2));
         },
         "stateSaveCallback": function(settings, data) {
             localStorage.setItem('quotation', JSON.stringify(data));

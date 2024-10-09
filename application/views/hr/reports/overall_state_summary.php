@@ -269,7 +269,7 @@
       <div class="row">
          <div class="col-sm-16 col-md-14">
             <div class="panel panel-bd lobidrag" id="printableArea">
-             
+             <div id='date_period_range' style='text-align: center;font-weight: bolder;font-size: x-large;color: #337ab7;'></div>
                    <div class="row">
          <div class="col-sm-16 col-md-14">
            
@@ -282,8 +282,8 @@
                               <tr class="sortableTable__header btnclr">
                                  <th rowspan="2" class="1 value" data-col="1" style="height: 45.0114px; text-align:center; "> <?php echo 'S.NO'?> </th>
                                  <th rowspan="2" class="2 value" data-col="2" style="text-align:center; width: 250px;"> <?php echo 'Employee Name'?> </th>
-                                 <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 120px; "> <?php echo 'Employee Tax'?> </th>
-                               
+                                 <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 120px; "> <?php echo 'Gross'?> </th>
+                                 <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 120px; "> <?php echo 'Net'?> </th>
                                  <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Federal Income Tax')?> </th>
                                  <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Social Security Tax')?> </th>
                                  <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Medicare Tax')?> </th>
@@ -594,46 +594,45 @@ removeDuplicates();
 });
 
 $(document).ready(function () {
-  
     
     $('#fetch_tax').submit(function (event) {
         event.preventDefault();
+
         var formData = $(this).serialize();
-   var taxtpe=$('#taxtyp-filter').val();
-   console.log(taxtpe, 'taxtpe');
+        var taxtpe=$('#taxtyp-filter').val();
+        console.log(taxtpe, 'taxtpe');
         $.ajax({
             type: "POST",
             dataType: "json",
             url: "<?php echo base_url('Chrm/state_tax_search_summary'); ?>",
             data: formData,
-       success: function (response) {
+            success: function (response) {
+            debugger;
+              if(($('#daterangepicker-field').val() !='')){
+               $('#date_period_range').html("Pay Range : " +$('#daterangepicker-field').val());
+              }
                 $('#tablesContainer').css('display','block');
-                        populateTable(response);
-               
-           
+                 populateTable(response);
                 if(taxtpe == 'federal'){
-                    $('.federal').show();
-                          $('.work_state').hide();
-         $('.living_state').hide();
-         $('#StateTaxTable_wrapper').css('display','none');
-         $('#LivingStateTaxTable_wrapper').css('display','none');
-                    
-                }else if(taxtpe == 'working_state')
-                {
+                  $('.federal').show();
+                  $('.work_state').hide();
+                  $('.living_state').hide();
+                  $('#StateTaxTable_wrapper').css('display','none');
+                  $('#LivingStateTaxTable_wrapper').css('display','none');
+                } else if(taxtpe == 'working_state') {
                  $('.work_state').show();
-         $('.living_state').hide();
-          $('.federal').hide();
-          $('#LivingStateTaxTable_wrapper').css('display','none');
-                }
-                else if( taxtpe == 'living_state'){
-                   $('.work_state').hide();
-                    $('.federal').hide();
-                $('.living_state').show();   
-                $('#StateTaxTable_wrapper').css('display','none');
+                 $('.living_state').hide();
+                 $('.federal').hide();
+                 $('#LivingStateTaxTable_wrapper').css('display','none');
+                } else if( taxtpe == 'living_state') {
+                  $('.work_state').hide();
+                  $('.federal').hide();
+                  $('.living_state').show();   
+                  $('#StateTaxTable_wrapper').css('display','none');
                 }else{
-                   $('.work_state').show();
-                    $('.federal').show();
-         $('.living_state').show();  
+                  $('.work_state').show();
+                  $('.federal').show();
+                  $('.living_state').show();  
                 }
                 federal_summary();
             },
@@ -643,10 +642,9 @@ $(document).ready(function () {
         });
     });
 });
-var total_federal_deduction = 0;
-function federal_summary(){
 
-    
+
+function federal_summary(){
     var dataString = $("#fetch_tax").serialize();
     dataString[csrfName] = csrfHash; 
     
@@ -672,7 +670,8 @@ function federal_summary(){
                 var row = "<tr>";
                 row += "<td style='text-align: center;'>" + (i + 1) + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['first_name'] || '') + " " +(employee['middle_name'] || '')+" "+ (employee['last_name'] || '') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['deduction'] || '') + "</td>";
+                row += "<td style='text-align: center;'>" + (employee['gross'] || '') + "</td>";
+                   row += "<td style='text-align: center;'>" + ((employee['gross']-employee['federal_deduction']-employee['total_deduction']) || '') + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['fftax'] ? parseFloat(employee['fftax']).toFixed(2) : '0.00') + "</td>";
                 row += "<td style='text-align: center;'>" + (employer['fftax'] ? parseFloat(employer['fftax']).toFixed(2) : '0.00') + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['sstax'] ? parseFloat(employee['sstax']).toFixed(2) : '0.00') + "</td>";
@@ -687,6 +686,8 @@ function federal_summary(){
 
             // Display totals
             var totalEmployeeContribution = {
+                'totalGross' :0,
+                'totalNet'  :0,
                 'FederalIncomeTax': 0,
                 'SocialSecurityTax': 0,
                 'MedicareTax': 0,
@@ -703,7 +704,9 @@ function federal_summary(){
             for (var i = 0; i < employeeData.length; i++) {
                 var employee = employeeData[i];
                 var employer = employerData[i] || {}; // Handle missing data gracefully
-             totalEmployeeContribution['FederalIncomeTax'] += parseFloat(employee['fftax']) || 0;
+                 totalEmployeeContribution['totalGross'] += parseFloat(employee['gross']) || 0;
+                  totalEmployeeContribution['totalNet'] += parseFloat((employee['gross']-employee['federal_deduction']-employee['total_deduction'])) || 0;
+              totalEmployeeContribution['FederalIncomeTax'] += parseFloat(employee['fftax']) || 0;
                 totalEmployeeContribution['SocialSecurityTax'] += parseFloat(employee['sstax']) || 0;
                 totalEmployeeContribution['MedicareTax'] += parseFloat(employee['mmtax']) || 0;
                 totalEmployeeContribution['UnemploymentTax'] += parseFloat(employee['u_utax']) || 0;
@@ -717,7 +720,9 @@ function federal_summary(){
             var tfoot = $("#federal_summary tfoot").empty();
             // Append total row
             var totalRow = "<tr class='btnclr'>";
-            totalRow += "<td style='text-align:end;' colspan='3'>Total </td>";
+            totalRow += "<td style='text-align:end;' colspan='2'>Total </td>";
+             totalRow += "<td>" + totalEmployeeContribution['totalGross'].toFixed(2) + "</td>";
+              totalRow += "<td>" + totalEmployeeContribution['totalNet'].toFixed(2) + "</td>";
             totalRow += "<td>" + totalEmployeeContribution['FederalIncomeTax'].toFixed(2) + "</td>";
             totalRow += "<td>" + totalEmployerContribution['FederalIncomeTax'].toFixed(2) + "</td>";
             totalRow += "<td>" + totalEmployeeContribution['SocialSecurityTax'].toFixed(2) + "</td>";
@@ -730,7 +735,8 @@ function federal_summary(){
             tfoot.append(totalRow);
             var total_federal_deduction =  totalEmployeeContribution['FederalIncomeTax']+
             totalEmployeeContribution['SocialSecurityTax']+totalEmployeeContribution['MedicareTax']+totalEmployeeContribution['UnemploymentTax'];
-            console.log("Federal :"+total_federal_deduction);
+          
+            localStorage.setItem("totalfederaldeduction", total_federal_deduction);
             if ($.fn.DataTable.isDataTable('#federal_summary')) {
                 $('#federal_summary').DataTable().destroy(); 
             }
@@ -767,7 +773,7 @@ function populateTable(response) {
     function generateTaxTable(taxType, employerContributions, employeeContributions, table) {
         const allTaxTypes = {};
         const taxTypeCounts = {};
-        
+        const FederalsummaryTotal = localStorage.getItem("totalfederaldeduction");
         // Collect unique tax codes
         employerContributions.forEach(item => {
             const taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
@@ -889,48 +895,52 @@ function populateTable(response) {
             });
 
             // Populate rows for each employee
-            const tbody = table.find("tbody");
-            let serialNumber = 1; // Initialize serial number
-            let totalGross = 0;   // Initialize total gross
+           const tbody = table.find("tbody");
+let serialNumber = 1; // Initialize serial number
+let totalGross = 0;   // Initialize total gross
 let totalNet = 0; 
-            Object.keys(consolidatedContributions).forEach(employeeName => {
-                const contributions = consolidatedContributions[employeeName];
-                const row = $("<tr>");
-                row.append("<td>" + serialNumber++ + "</td>"); // Add serial number
-                row.append("<td>" + employeeName + "</td>");
-                 let employeeGross = 0;
-                 let employeeDeduction = 0;
-    // Find gross for the current employee from all contributions
+
+Object.keys(consolidatedContributions).forEach(employeeName => {
+    const contributions = consolidatedContributions[employeeName];
+    const row = $("<tr>");
+    row.append("<td>" + serialNumber++ + "</td>"); // Add serial number
+    row.append("<td>" + employeeName + "</td>");
+
+    let employeeGross = 0;
+    let employeeDeduction = 0;
+    let federaldeduction = 0;
+
+    // Find gross, deduction, and federal_deduction for the current employee
     for (let taxType of ['state_tax', 'living_state_tax']) {
         const taxContributions = response.employee_contribution[taxType].filter(item => item.employee_name === employeeName);
         taxContributions.forEach(item => {
-            employeeGross = item.gross; // Assuming gross is a number, not a string
-            employeeDeduction = item.total_deduction; // Assuming gross is a number, not a string
-
+            employeeGross = parseFloat(item.gross) || 0;
+            employeeDeduction = parseFloat(item.total_deduction) || 0;
+            federaldeduction = parseFloat(item.federal_deduction) || 0;
         });
     }
 
     row.append("<td>$" + employeeGross.toFixed(3) + "</td>"); // Add gross amount
-console.log(totalEmployeeDeduction);
+
     // Calculate net amount
-    const employeeContribution =  totalEmployeeDeduction[employeeName] || 0; // Safe fallback to 0
-    const netAmount = employeeGross - employeeDeduction;
-    console.log("Gross : "+employeeGross+"-"+employeeDeduction+"="+netAmount);
+    const netAmount = employeeGross - employeeDeduction - federaldeduction;
     row.append("<td>$" + netAmount.toFixed(3) + "</td>"); // Add net amount
-     totalGross += employeeGross; 
+
+    totalGross += employeeGross; 
     totalNet += netAmount;
-                Object.keys(taxTypeMap).forEach(taxType => {
-                    const taxes = taxTypeMap[taxType];
-                    taxes.forEach(taxKey => {
-                        const taxData = contributions[taxKey] || { employee: "0.00", employer: "0.00" };
-                        row.append("<td>$" + taxData.employee + "</td>");
-                        row.append("<td>$" + taxData.employer + "</td>");
-                    });
-                });
 
-                tbody.append(row);
-            });
+    // Append tax contribution details for each tax type
+    Object.keys(taxTypeMap).forEach(taxType => {
+        const taxes = taxTypeMap[taxType];
+        taxes.forEach(taxKey => {
+            const taxData = contributions[taxKey] || { employee: "0.00", employer: "0.00" };
+            row.append("<td>$" + taxData.employee + "</td>");
+            row.append("<td>$" + taxData.employer + "</td>");
+        });
+    });
 
+    tbody.append(row);
+});
             // Populate footer with total contributions
             const tfoot = table.find("tfoot");
             const footerRow = $("<tr class='btnclr'>").append("<td colspan='2'>Total</td>");
