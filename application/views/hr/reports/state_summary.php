@@ -502,9 +502,7 @@ function populateTable(response) {
     // Collect unique tax codes from both employer and employee contributions
     Object.keys(response.employer_contribution).forEach(function (taxType) {
         response.employer_contribution[taxType].forEach(function (item) {
-          var tax = item.tax ? item.tax.trim() : '';  
-            var code = item.code ? item.code.trim() : '';  
-            var taxKey = tax + "-" + code;
+            var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
             allTaxTypes[taxKey] = item.taxType || ''; // Store tax type
             taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1; // Count occurrences
         });
@@ -512,9 +510,7 @@ function populateTable(response) {
 
     Object.keys(response.employee_contribution).forEach(function (taxType) {
         response.employee_contribution[taxType].forEach(function (item) {
-            var tax = item.tax ? item.tax.trim() : '';  
-            var code = item.code ? item.code.trim() : '';  
-            var taxKey = tax + "-" + code;
+            var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
             allTaxTypes[taxKey] = item.taxType || '';
             taxTypeCounts[taxKey] = (taxTypeCounts[taxKey] || 0) + 1;
         });
@@ -531,7 +527,7 @@ function populateTable(response) {
 
     if (Object.keys(taxTypeMap).length > 0) {
         // Create table headers dynamically
-        var taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th><th rowspan='2' style='border-bottom:none;text-align:center'>Gross</th><th rowspan='2' style='border-bottom:none;text-align:center'>Net</th>";
+        var taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th>";
 
         Object.keys(taxTypeMap).forEach(function (taxType) {
             var taxes = taxTypeMap[taxType];
@@ -547,12 +543,11 @@ function populateTable(response) {
             taxes.forEach(function (taxKey) {
                 var taxName = taxKey.split('-')[0];
                 var code = taxKey.split('-')[1];
-                var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'Code is something else';
-                taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + changecode + "</th>";
+                taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + code + "</th>";
             });
         });
 
-        taxHeaders += "</tr><tr class='btnclr'><th></th><th></th><th></th>";
+        taxHeaders += "</tr><tr class='btnclr'><th></th>";
 
         Object.keys(taxTypeMap).forEach(function (taxType) {
             var taxes = taxTypeMap[taxType];
@@ -566,15 +561,10 @@ function populateTable(response) {
 
         // Consolidate contributions by employee and tax
         var consolidatedContributions = {};
-        var employeeGrossNet = {};
-        var totalGross = 0; // Initialize total gross
-        var totalNet = 0; // Initialize total net
         Object.keys(response.employer_contribution).forEach(function (taxType) {
             response.employer_contribution[taxType].forEach(function (item) {
                 var employeeName = item.employee_name;
-               var tax = item.tax ? item.tax.trim() : '';  
-            var code = item.code ? item.code.trim() : '';  
-            var taxKey = tax + "-" + code;
+                var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
                 if (!consolidatedContributions[employeeName]) {
                     consolidatedContributions[employeeName] = {};
                 }
@@ -588,16 +578,7 @@ function populateTable(response) {
         Object.keys(response.employee_contribution).forEach(function (taxType) {
             response.employee_contribution[taxType].forEach(function (item) {
                 var employeeName = item.employee_name;
-            var tax = item.tax ? item.tax.trim() : '';  
-            var code = item.code ? item.code.trim() : '';  
-            var taxKey = tax + "-" + code;
-            var employeeName = item.employee_name || 'Unknown'; // Handle possible null
-            var totalDeduction = parseFloat(item.total_deduction) || 0; // Get total deduction
-            var federalDeduction = parseFloat(item.federal_deduction) || 0; // Get federal deduction
-            var gross = parseFloat(item.gross) || 0; // Get gross income
-            var net = gross - totalDeduction - federalDeduction; // Calculate net
-              totalGross += gross;
-                totalNet += net;
+                var taxKey = item.tax.trim() + "-" + (item.code ? item.code.trim() : "");
                 if (!consolidatedContributions[employeeName]) {
                     consolidatedContributions[employeeName] = {};
                 }
@@ -605,10 +586,6 @@ function populateTable(response) {
                     consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
                 }
                 consolidatedContributions[employeeName][taxKey].employee = parseFloat(item.total_amount).toFixed(3) || "0.000";
-                 // Store gross and net values
-            if (!employeeGrossNet[employeeName]) {
-                employeeGrossNet[employeeName] = { gross: gross.toFixed(3), net: net.toFixed(3) };
-            }
             });
         });
 
@@ -618,8 +595,7 @@ function populateTable(response) {
             var contributions = consolidatedContributions[employeeName];
             var row = $("<tr>");
             row.append("<td>" + employeeName + "</td>");
-             row.append("<td>$" + (employeeGrossNet[employeeName] ? employeeGrossNet[employeeName].gross : "0.000") + "</td>"); // Gross
-            row.append("<td>$" + (employeeGrossNet[employeeName] ? employeeGrossNet[employeeName].net : "0.000") + "</td>"); // Net
+
             Object.keys(taxTypeMap).forEach(function (taxType) {
                 var taxes = taxTypeMap[taxType];
                 taxes.forEach(function (taxKey) {
@@ -634,8 +610,7 @@ function populateTable(response) {
 
         // Populate footer with total contributions
         var tfoot = ProfarmaInvList.find("tfoot");
-       var footerRow = $("<tr class='btnclr'>").append("<td>Total</td><td>$" + totalGross.toFixed(3) + "</td><td>$" + totalNet.toFixed(3) + "</td>"); // Total gross and net
-
+        var footerRow = $("<tr class='btnclr'>").append("<td>Total</td>");
 
         Object.keys(taxTypeMap).forEach(function (taxType) {
             var taxes = taxTypeMap[taxType];
