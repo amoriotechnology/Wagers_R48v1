@@ -282,8 +282,8 @@
                               <tr class="sortableTable__header btnclr">
                                  <th rowspan="2" class="1 value" data-col="1" style="height: 45.0114px; text-align:center; "> <?php echo 'S.NO'?> </th>
                                  <th rowspan="2" class="2 value" data-col="2" style="text-align:center; width: 250px;"> <?php echo 'Employee Name'?> </th>
-                                 <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 120px; "> <?php echo 'Employee Tax'?> </th>
-                               
+                                 <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 120px; "> <?php echo 'Gross'?> </th>
+                                              <th rowspan="2" class="3 value" data-col="3" style="text-align:center;width: 120px; "> <?php echo 'Net'?> </th>
                                  <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Federal Income Tax')?> </th>
                                  <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Social Security Tax')?> </th>
                                  <th colspan="2" class="4 value" data-col="4" style="text-align:center;width: 200px;"> <?php echo ('Medicare Tax')?> </th>
@@ -310,8 +310,8 @@
                               <tr>
                                  <td> <?php echo $count; ?> </td>
                                  <td> <?php echo  $f_tax['first_name']." ".$f_tax['middle_name']." ".$f_tax['last_name']; ?> </td>
-                                 <td> <?php echo  $f_tax['employee_tax']; ?> </td>
-                                
+                                 <td> <?php echo  $f_tax['gross']; ?> </td>
+                                 <td> <?php echo  $f_tax['net']; ?> </td>
                                  <td> <?php echo  round($f_tax['f_ftax_sum'],2); ?> </td>
                                  <td> <?php if($mergedArray[$i]['f_ftax_sum_er']){echo  round($mergedArray[$i]['f_ftax_sum_er'],2); }else{echo '0';}?> </td>
                                  <td> <?php echo  round($f_tax['s_stax_sum'],2); ?> </td>
@@ -587,7 +587,8 @@ function federal_summary(){
                 var row = "<tr>";
                 row += "<td style='text-align: center;'>" + (i + 1) + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['first_name'] || '') + " " +(employee['middle_name'] || '')+" "+ (employee['last_name'] || '') + "</td>";
-                row += "<td style='text-align: center;'>" + (employee['employee_tax'] || '') + "</td>";
+                row += "<td style='text-align: center;'>" + (employee['gross'] ? parseFloat(employee['gross']).toFixed(2) : '0.00') + "</td>";
+                   row += "<td style='text-align: center;'>" + (employee['net'] ? parseFloat(employee['net']).toFixed(2) : '0.00') + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['fftax'] ? parseFloat(employee['fftax']).toFixed(2) : '0.00') + "</td>";
                 row += "<td style='text-align: center;'>" + (employer['fftax'] ? parseFloat(employer['fftax']).toFixed(2) : '0.00') + "</td>";
                 row += "<td style='text-align: center;'>" + (employee['sstax'] ? parseFloat(employee['sstax']).toFixed(2) : '0.00') + "</td>";
@@ -602,6 +603,8 @@ function federal_summary(){
 
             // Display totals
             var totalEmployeeContribution = {
+                'gross': 0,
+                 'net': 0,
                 'FederalIncomeTax': 0,
                 'SocialSecurityTax': 0,
                 'MedicareTax': 0,
@@ -618,6 +621,8 @@ function federal_summary(){
             for (var i = 0; i < employeeData.length; i++) {
                 var employee = employeeData[i];
                 var employer = employerData[i] || {}; // Handle missing data gracefully
+                 totalEmployeeContribution['gross'] += parseFloat(employee['gross']) || 0;
+                  totalEmployeeContribution['net'] += parseFloat(employee['net']) || 0;
              totalEmployeeContribution['FederalIncomeTax'] += parseFloat(employee['fftax']) || 0;
                 totalEmployeeContribution['SocialSecurityTax'] += parseFloat(employee['sstax']) || 0;
                 totalEmployeeContribution['MedicareTax'] += parseFloat(employee['mmtax']) || 0;
@@ -632,7 +637,9 @@ function federal_summary(){
             var tfoot = $("#federal_summary tfoot").empty();
             // Append total row
             var totalRow = "<tr class='btnclr'>";
-            totalRow += "<td style='text-align:end;' colspan='3'>Total </td>";
+            totalRow += "<td style='text-align:end;' colspan='2'>Total </td>";
+             totalRow += "<td>" + totalEmployeeContribution['gross'].toFixed(2) + "</td>";
+              totalRow += "<td>" + totalEmployeeContribution['net'].toFixed(2) + "</td>";
             totalRow += "<td>" + totalEmployeeContribution['FederalIncomeTax'].toFixed(2) + "</td>";
             totalRow += "<td>" + totalEmployerContribution['FederalIncomeTax'].toFixed(2) + "</td>";
             totalRow += "<td>" + totalEmployeeContribution['SocialSecurityTax'].toFixed(2) + "</td>";
@@ -705,6 +712,7 @@ function populateTable(response) {
         // Create table headers dynamically
         if (Object.keys(taxTypeMap).length > 0) {
             let taxHeaders = "<tr class='btnclr'><th rowspan='2' style='border-bottom:none;text-align:center'>S.No</th><th rowspan='2' style='border-bottom:none;text-align:center'>Employee Name</th>";
+       taxHeaders += "<th rowspan='2' style='border-bottom:none;text-align:center'>Gross</th><th rowspan='2' style='border-bottom:none;text-align:center'>Net</th>";
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 const displayTaxType = (taxType === "living_state_tax") ? "LIVING STATE TAX" : "WORKING STATE TAX";
@@ -721,7 +729,7 @@ function populateTable(response) {
                 });
             });
 
-            taxHeaders += "</tr><tr class='btnclr'><th></th><th></th>"; // Add empty cell for S.No
+            taxHeaders += "</tr><tr class='btnclr'><th></th><th></th><th></th><th></th>"; // Add empty cell for S.No
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 taxes.forEach(() => {
@@ -743,7 +751,8 @@ function populateTable(response) {
                     consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
                 }
                 consolidatedContributions[employeeName][taxKey].employer = parseFloat(item.total_amount).toFixed(3) || "0.000";
-            });
+            
+               });
 
             employeeContributions.forEach(item => {
                 const employeeName = item.employee_name;
@@ -751,11 +760,16 @@ function populateTable(response) {
                 if (!consolidatedContributions[employeeName]) {
                     consolidatedContributions[employeeName] = {};
                 }
+                  if (!consolidatedContributions[employeeName]) {
+                consolidatedContributions[employeeName] = { gross: item.gross || 0, net: item.net || 0 };
+            }
                 if (!consolidatedContributions[employeeName][taxKey]) {
                     consolidatedContributions[employeeName][taxKey] = { employee: "0.000", employer: "0.000" };
                 }
                 consolidatedContributions[employeeName][taxKey].employee = parseFloat(item.total_amount).toFixed(3) || "0.000";
-            });
+           consolidatedContributions[employeeName].gross = item.gross || consolidatedContributions[employeeName].gross;
+            consolidatedContributions[employeeName].net = item.net || consolidatedContributions[employeeName].net;
+               });
 
             // Populate rows for each employee
             const tbody = table.find("tbody");
@@ -765,6 +779,8 @@ function populateTable(response) {
                 const row = $("<tr>");
                 row.append("<td>" + serialNumber++ + "</td>"); // Add serial number
                 row.append("<td>" + employeeName + "</td>");
+                row.append("<td>$" + parseFloat(contributions.gross).toFixed(3) + "</td>"); // Add Gross column
+            row.append("<td>$" + parseFloat(contributions.net).toFixed(3) + "</td>"); // Add Net column
 
                 Object.keys(taxTypeMap).forEach(taxType => {
                     const taxes = taxTypeMap[taxType];
@@ -780,15 +796,26 @@ function populateTable(response) {
 
             // Populate footer with total contributions
             const tfoot = table.find("tfoot");
+            let totalGross = 0;
+let totalNet = 0;
+Object.keys(consolidatedContributions).forEach(employeeName => {
+    const contributions = consolidatedContributions[employeeName];
+    totalGross += parseFloat(contributions.gross);
+    totalNet += parseFloat(contributions.net);
+});
             const footerRow = $("<tr class='btnclr'>").append("<td colspan='2'>Total</td>");
+            footerRow.append("<td>$" + totalGross.toFixed(3) + "</td>");
+footerRow.append("<td>$" + totalNet.toFixed(3) + "</td>");
 
             Object.keys(taxTypeMap).forEach(taxType => {
                 const taxes = taxTypeMap[taxType];
                 taxes.forEach(taxKey => {
                     let totalEmployeeContribution = 0;
                     let totalEmployerContribution = 0;
+                    
                     Object.keys(consolidatedContributions).forEach(employeeName => {
                         const contribution = consolidatedContributions[employeeName][taxKey];
+             
                         if (contribution) {
                             totalEmployeeContribution += parseFloat(contribution.employee);
                             totalEmployerContribution += parseFloat(contribution.employer);
