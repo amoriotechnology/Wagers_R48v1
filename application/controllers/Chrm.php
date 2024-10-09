@@ -142,22 +142,27 @@ public function state_tax_search_summary() {
         'state_tax' => [],
         'living_state_tax' => []
     ];
-    // Organize employer contributions
+//print_r($state_summary_employer);die();
     foreach ($state_summary_employer as $row) {
         $employee_name = $row['first_name'] . ' ' . $row['middle_name'] . ' ' . $row['last_name'];
         $tax_type = $row['tax_type'];
         $tax = $row['tax'];
         $code = $row['code'];
+        $net_amount = $row['net'];
+        $gross_amount = $row['gross'];
         $total_amount = $row['total_amount'];
         // Organize by tax type
         $employer_contributions[$tax_type][] = [
             'employee_name' => $employee_name,
             'tax' => $tax,
+            'net' => $net_amount,
+            'gross'=>$gross_amount,
              'taxType' => $tax_type,
             'code'  => $code,
             'total_amount' => $total_amount
         ];
     }
+   // print_r($employer_contributions);die();
     // Organize employee contributions
     foreach ($state_summary_employee as $row) {
         $employee_name = $row['first_name'] . ' ' . $row['middle_name'] . ' ' . $row['last_name'];
@@ -170,6 +175,8 @@ public function state_tax_search_summary() {
             'employee_name' => $employee_name,
             'tax' => $tax,
              'code'  => $code,
+               'net' => 0,
+            'gross'=>0,
                'taxType' => $tax_type,
             'total_amount' => $total_amount
         ];
@@ -211,6 +218,7 @@ $final_amount = $row['total_amount'];
         'employer_contribution' => $employee_contributions,
         'employee_contribution' =>$employer_contributions
     ];
+
     // Encode the response array to JSON
     $jsonData = json_encode($responseData, JSON_PRETTY_PRINT);
     // Output the JSON data
@@ -230,12 +238,8 @@ public function social_taxsearch(){
       if ($data['employe']) {
         $aggregated = [];
      $aggregated_employe = [];
-// print_r($data['employe']); // Check if data is present
-// echo "Processing employee data...\n";
-
 foreach ($data['employe'] as $row) {
-  //  echo "Processing employee ID: " . $row['id'] . "\n"; // Debugging line
-    $key = $row['id'];
+ $key = $row['id'];
     
     if (!isset($aggregated_employe[$key])) {
         $aggregated_employe[$key] = [
@@ -244,6 +248,8 @@ foreach ($data['employe'] as $row) {
             'middle_name' => $row['middle_name'],
             'last_name' => $row['last_name'],
             'employee_tax' => $row['employee_tax'],
+            'gross' => $row['gross'],
+            'net' => $row['net'],
             'fftax' => 0,
             'mmtax' => 0,
             'sstax' => 0,
@@ -260,7 +266,7 @@ foreach ($data['employe'] as $row) {
 
 // Convert aggregated data to array format
 $data['aggregated_employe'] = array_values($aggregated_employe);
-//print_r($data['aggregated_employe']); // Check the final output
+//print_r($data['aggregated_employe']); die();
     } else {
         $data['aggregated_employe'] = [];
     }
@@ -862,14 +868,51 @@ public function overallSocialtaxIndexData()
     $orderDirection = $this->input->post("order")[0]["dir"];
     $date           = $this->input->post("federal_date_search");
     $emp_name       = $this->input->post('employee_name');
-    $items          = $this->Hrm_model->getPaginatedSocialTaxSummary($limit, $start, $orderField, $orderDirection, $search, $date, $emp_name,$decodedId);
-    $totalItems     = $this->Hrm_model->getSocialOveralltax($search, $date, $emp_name,$decodedId);
+    
+    // Fetch data from models
+    $items          = $this->Hrm_model->getPaginatedSocialTaxSummary($limit, $start, $orderField, $orderDirection, $search, $date, $emp_name, $decodedId);
+    $totalItems     = $this->Hrm_model->getSocialOveralltax($search, $date, $emp_name, $decodedId);
     $fed_tax        = $this->Hrm_model->social_tax_sumary($date, $emp_name);
     $fed_tax_emplr  = $this->Hrm_model->social_tax_employer($date, $emp_name);
+    
+    // Employee data aggregation
+    $data['employe'] = $this->Hrm_model->so_tax_report_employee($emp_name, $date, $status);
+    
+    $aggregated_employe = [];
+    if ($data['employe']) {
+        foreach ($data['employe'] as $row) {
+            $key = $row['id'];
+            if (!isset($aggregated_employe[$key])) {
+                $aggregated_employe[$key] = [
+                    'id' => $row['id'],
+                    'first_name' => $row['first_name'],
+                    'middle_name' => $row['middle_name'],
+                    'last_name' => $row['last_name'],
+                    'employee_tax' => $row['employee_tax'],
+                    'gross' => $row['gross'],
+                    'net' => $row['net'],
+                    'fftax' => 0,
+                    'mmtax' => 0,
+                    'sstax' => 0,
+                    'uutax' => 0,
+                ];
+            }
+            
+            // Aggregate the taxes
+            $aggregated_employe[$key]['fftax'] += $row['fftax'];
+            $aggregated_employe[$key]['mmtax'] += $row['mmtax'];
+            $aggregated_employe[$key]['sstax'] += $row['sstax'];
+            $aggregated_employe[$key]['uutax'] += $row['uutax'];
+        }
+    }
+
+    // Prepare merged array from federal tax data
     $mergedArray = [];
     foreach ($fed_tax as $item1) {
         $mergedArray[$item1['employee_id']] = $item1;
     }
+
+    // Update mergedArray with employer tax data
     foreach ($fed_tax_emplr as $item2) {
         if (isset($mergedArray[$item2['employee_id']])) {
             foreach ($item2 as $key => $value) {
@@ -879,15 +922,31 @@ public function overallSocialtaxIndexData()
             }
         }
     }
-    $data = [];
-    $i    = $start + 1;
+
+    // Add gross and net from aggregated_employe to mergedArray
+    foreach ($mergedArray as $employee_id => &$data) {
+        // Debugging: Check if employee_id exists in aggregated_employe
+        if (isset($aggregated_employe[$employee_id])) {
+            $data['gross'] = $aggregated_employe[$employee_id]['gross'];
+            $data['net'] = $aggregated_employe[$employee_id]['net'];
+        } else {
+            // Log if there’s no match
+            echo "No match found for employee ID: $employee_id\n";
+        }
+    }
+
+    // Prepare the final data array for the response
+    $responseData = [];
+    $i = $start + 1;
     foreach ($items as $item) {
         $employeeId = $item["employee_id"];
         $mergedItem = $mergedArray[$employeeId] ?? [];
         $row = [
             'table_id'      => $i,
-            "first_name"    => $item["first_name"] .' '. $item["middle_name"].' '. $item["last_name"],
+            "first_name"    => $item["first_name"] . ' ' . $item["middle_name"] . ' ' . $item["last_name"],
             "employee_tax"  => $item["employee_tax"],
+            'gross'         => number_format($mergedItem['gross'] ?? 0, 2),
+            'net'           => number_format($mergedItem['net'] ?? 0, 2),
             'f_employee'    => number_format($mergedItem['f_ftax_sum'] ?? 0, 2),
             'f_employer'    => number_format($mergedItem['f_ftax_sum_er'] ?? 0, 2),
             'socialsecurity_employee' => number_format($mergedItem['s_stax_sum'] ?? 0, 2),
@@ -897,17 +956,21 @@ public function overallSocialtaxIndexData()
             'unemployment_employee' => number_format($mergedItem['u_utax_sum'] ?? 0, 2),
             'unemployment_employer' => number_format($mergedItem['u_utax_sum_er'] ?? 0, 2),
         ];
-        $data[] = $row;
+        $responseData[] = $row;
         $i++;
     }
+
+    // Prepare response
     $response = [
         "draw"            => $this->input->post("draw"),
         "recordsTotal"    => $totalItems,
         "recordsFiltered" => $totalItems,
-        "data"            => $data,
+        "data"            => $responseData,
     ];
+
     echo json_encode($response);
 }
+
 
 
 
@@ -2299,10 +2362,13 @@ if ($query->num_rows() == 0) {
     $this->db->where('time_sheet_id', $timesheetdata[0]['timesheet_id']);
     $this->db->order_by('id', 'ASC'); // Assuming id is the primary key
     $this->db->limit(1);
-    $this->db->update('tax_history', $data2);  $total_deduction += $weekly_tax;
+   $this->db->insert('tax_history',$data1); $total_deduction += $weekly_tax;
+}else{
+   $this->db->update('tax_history', $data2);  $total_deduction += $weekly_tax;
 }
 
-$this->db->insert('tax_history',$data1); $total_deduction += $weekly_tax;
+
+
 $this->Hrm_model->deleteDuplicateTaxRecords();
 } 
 else if ($data['employee_data'][0]['payroll_type'] == 'Salaried-BiWeekly') {

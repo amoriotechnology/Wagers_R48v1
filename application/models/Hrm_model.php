@@ -425,7 +425,7 @@ public function fetchQuarterlyData($quarter) {
 public function state_summary_employer($emp_name = null, $tax_choice = null, $selectState = null, $date = null, $taxType = null)
 {
     $user_id = $this->session->userdata('user_id');
-   $this->db->select('DISTINCT a.timesheet_id, a.cheque_date, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.weekly,d.biweekly,d.monthly, (d.amount) as total_amount', false);
+   $this->db->select('DISTINCT a.timesheet_id, SUM(b.total_amount) as gross , SUM(b.net_amount) as net,a.cheque_date, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.weekly,d.biweekly,d.monthly, (d.amount) as total_amount', false);
     $this->db->from('timesheet_info a');
     $this->db->join('info_payslip b', 'b.templ_name = a.templ_name');
     $this->db->join('employee_history c', 'c.id = b.templ_name');
@@ -460,7 +460,9 @@ public function state_summary_employer($emp_name = null, $tax_choice = null, $se
     $this->db->where('a.create_by', $user_id);
     $this->db->group_by('a.timesheet_id,d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type,d.weekly,d.biweekly,d.monthly, d.tax,d.amount');
     $query = $this->db->get();
+   
     $resultRows = $query->result_array();
+   
     return $resultRows;
 }
 
@@ -502,6 +504,7 @@ public function state_summary_employee($emp_name = null, $tax_choice = null, $se
     $this->db->where('a.create_by', $user_id);
     $this->db->group_by('a.timesheet_id, d.code, c.id, c.first_name, c.middle_name, c.last_name, d.tax_type, d.tax,d.amount'); // Group by to aggregate the sum
     $query = $this->db->get();
+  
     $resultRows = $query->result_array();
     return $resultRows;
 }
@@ -944,12 +947,13 @@ public function federal_tax_report($emp_name = null, $date = null, $status = nul
 public function so_tax_report_employee($employee_name = null, $date = null, $status = null)
 {
     $user_id = $this->session->userdata('user_id');
-    $this->db->select('c.id,c.first_name, c.middle_name, c.last_name, c.employee_tax, ti.cheque_date');
+    $this->db->select('c.id,c.first_name,(ti.above_extra_sum) as gross,(b.net_amount) as net, c.middle_name, c.last_name, c.employee_tax, ti.cheque_date');
     $this->db->select('(b.f_tax) AS fftax');
     $this->db->select('(b.m_tax) AS mmtax');
     $this->db->select('(b.s_tax) AS sstax');
     $this->db->select('(b.u_tax) AS uutax');
     $this->db->from('timesheet_info ti');
+    
     $this->db->join('info_payslip b', 'b.timesheet_id = ti.timesheet_id', 'left');
     $this->db->join('employee_history c', 'c.id = b.templ_name', 'inner');
     if ($date) {
@@ -966,11 +970,54 @@ public function so_tax_report_employee($employee_name = null, $date = null, $sta
     $this->db->where('ti.create_by', $user_id);
     $this->db->where('ti.uneditable', '1');
     $this->db->order_by('c.id', 'ASC');
+   
     $query = $this->db->get();
-    //echo $this->db->last_query();
-    if ($query->num_rows() > 0) {
-        return $query->result_array();
+     if ($query->num_rows() > 0) {
+        $resultRows = $query->result_array();
+
+        // Maps to store summed gross and net for each employee
+        $employeeSummary = [];
+
+        // Loop through each row to accumulate sums for each employee
+        foreach ($resultRows as $row) {
+            $employeeId = $row['id'];
+            $gross = $row['gross'];
+            $net = $row['net'];
+
+            // Initialize sums if not already done
+            if (!isset($employeeSummary[$employeeId])) {
+                $employeeSummary[$employeeId] = [
+                    'id' => $employeeId,
+                    'first_name' => $row['first_name'],
+                    'middle_name' => $row['middle_name'],
+                    'last_name' => $row['last_name'],
+                    'employee_tax' => $row['employee_tax'],
+                    'cheque_date' => $row['cheque_date'], // You may want to store the last date or another relevant date
+                    'gross' => 0,
+                    'net' => 0,
+                    'fftax' => 0,
+                    'mmtax' => 0,
+                    'sstax' => 0,
+                    'uutax' => 0,
+                ];
+            }
+
+            // Accumulate gross and net
+            $employeeSummary[$employeeId]['gross'] += $gross;
+            $employeeSummary[$employeeId]['net'] += $net;
+
+            // If you want to sum tax values, add them here as needed:
+            $employeeSummary[$employeeId]['fftax'] += $row['fftax'];
+            $employeeSummary[$employeeId]['mmtax'] += $row['mmtax'];
+            $employeeSummary[$employeeId]['sstax'] += $row['sstax'];
+            $employeeSummary[$employeeId]['uutax'] += $row['uutax'];
+        }
+
+        // Convert the associative array back to a numeric array
+     
+        return array_values($employeeSummary);
     }
+
     return false;
 }
 
