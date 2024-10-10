@@ -232,16 +232,7 @@
                </div>
                <!-- <div class='col-sm-2'> -->
                <div class="dropdown bootcol" id="drop">
-               <button class="btnclr btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="position: relative; left: 185px;">
-               <span class="fa fa-download"></span> <?php echo display('download') ?>
-               </button>
-               <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-               <li><a href="#" onclick="generate()"> <img src="<?php echo base_url() ?>assets/images/pdf.png" width="24px"> <?php echo display('PDF') ?></a></li>
-               <li class="divider"></li>
-               <li><a href="#" id="download"> <img src="<?php echo base_url() ?>assets/images/xls.png" width="24px"> <?php echo display('XLS') ?></a></li>
-               </ul>
-               &nbsp;  &nbsp;
-               &nbsp;
+            
                <button type="button" class="btnclr btn btn-default dropdown-toggle"  onclick="printDiv('printableArea')" style="margin-top: -54px; margin-left: 304px;float:left; position: relative; top: 54px;"><b class="ti-printer"></b>&nbsp;<?php echo display('print') ?></button>
                </div>
                <!-- </div> -->
@@ -261,19 +252,7 @@
                      <div id='printableArea'>
                          <div id='search_details'></div>
                            <div id='period'></div>
-                        <!-- <table class="table table-bordered" cellspacing="0" width="100%" id="ProfarmaInvList">
-                           <thead class="sortableTable" style="width: 100% !important;" id="ProfarmaInvList_head">
-                              
-                              
-                           </thead>
-                           <tbody id="ProfarmaInvList">
-                             
-                           </tbody>
-                           <tfoot  class="btnclr">
-                               
-                           </tfoot>
-                        </table> -->
-
+                     
 
                 <div class="row">
    <div class="col-sm-16 col-md-14" id="hidden_block" style="display: none;">
@@ -370,6 +349,7 @@
 <script  src="<?php echo base_url() ?>assets/js/scripts.js"></script>
 <script>
 $(function() {
+
   // Initialize the daterangepicker with desired date format
   $(".daterangepicker-field").daterangepicker({
     dateFormat: 'mm/dd/yy' // Setting the desired date format
@@ -445,6 +425,7 @@ removeDuplicates();
 
 
 $(document).ready(function () {
+    $('#printableArea').hide();
     $('#fetch_tax').submit(function (event) {
         event.preventDefault();
         initializeTable();
@@ -456,6 +437,10 @@ $(document).ready(function () {
             url: "<?php echo base_url('Chrm/state_tax_search_summary'); ?>",
             data: formData,
             success: function (response) {
+                $('#printableArea').show();
+                   if(($('#daterangepicker-field').val() !='')){
+               $('#date_period_range').html("Pay Range : " +$('#daterangepicker-field').val());
+              }
                 $('#hidden_block').css('display', 'block');
                 console.log(response);
                 populateTable(response);
@@ -470,6 +455,7 @@ function initializeTable() {
     var printableArea = $("#printableArea");
     printableArea.empty();
     var tableHtml = `
+     <div id='date_period_range' style='text-align: center;font-weight: bolder;font-size: x-large;color: #337ab7;'></div>
         <table class="table table-bordered" cellspacing="0" width="100%"   id="ProfarmaInvList">
             <thead></thead>
             <tbody></tbody>
@@ -722,7 +708,7 @@ th,td{
    }
    .dropdown{
     position: relative;
-    left: 1193px !important;
+    left: 900px !important;
     bottom: 68px !important;
    }
 </style>

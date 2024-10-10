@@ -272,37 +272,50 @@ $(".sidebar-mini").addClass('sidebar-collapse') ;
                     "columns": ':visible'
                 }
             },
-            {
-                "extend": "print",
-                "className": "btn-sm",
-                "exportOptions": {
-                    "columns": ':visible'
-                },
-                "customize": function(win) {
-                    $(win.document.body)
-                        .css('font-size', '10pt')
-                        .prepend(
-                            '<div style="text-align:center;"><h3>Federal Overall Summary</h3></div>'
-                        )
-                        .append(
-                            '<div style="text-align:center;"><h4>amoriotech.com</h4></div>'
-                        );
-                    $(win.document.body).find('table')
-                        .addClass('compact')
-                        .css('font-size', 'inherit');
-                    var rows = $(win.document.body).find('table tbody tr');
-                    rows.each(function() {
-                        if ($(this).find('td').length === 0) {
-                            $(this).remove();
-                        }
-                    });
-                    $(win.document.body).find('div:last-child')
-                        .css('page-break-after', 'auto');
-                    $(win.document.body)
-                        .css('margin', '0')
-                        .css('padding', '0');
-                }
-            },
+           {
+    "extend": "print",
+    "className": "btn-sm",
+    "exportOptions": {
+        "columns": ':visible'
+    },
+    "customize": function(win) {
+        // Hide specific elements in the print view
+        $(win.document.body).find('h1, h2, h3, h4, h5, h6, #printableArea').hide(); 
+
+        // Get the pay range from the date range picker
+        var payRange = $('#daterangepicker-field').val() !== '' ? "Pay Range : " + $('#daterangepicker-field').val() : "Pay Range : Not specified";
+
+        $(win.document.body)
+            .css('font-size', '10pt')
+            .prepend(
+                '<div style="text-align:center;"><h3>Federal Overall Summary</h3><br/><div id="date_period_range" style="text-align: center;font-weight: bolder;font-size: x-large;color: #337ab7;">' + payRange + '</div><br/></div>' 
+            )
+            .append(
+                '<div style="text-align:center;"></div>' 
+            );
+
+        // Clone the footer to the print window
+        var footerHtml = $(win.document.body).find('table tfoot').html();
+        $(win.document.body).find('table').append('<tfoot>' + footerHtml + '</tfoot>');
+
+        $(win.document.body).find('table')
+            .addClass('compact')
+            .css('font-size', 'inherit');
+
+        var rows = $(win.document.body).find('table tbody tr');
+        rows.each(function() {
+            if ($(this).find('td').length === 0) {
+                $(this).remove();
+            }
+        });
+
+        $(win.document.body).find('div:last-child')
+            .css('page-break-after', 'auto');
+        $(win.document.body)
+            .css('margin', '0')
+            .css('padding', '0');
+    }
+},
             {
                "extend": "colvis",
                "className": "btn-sm"
