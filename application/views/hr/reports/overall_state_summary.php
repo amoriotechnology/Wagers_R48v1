@@ -382,7 +382,7 @@
         <tbody></tbody>
         <tfoot></tfoot>
     </table>
-<!-- City Tax -->
+
 <div class="city_tax">
    <p  style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>CITY TAX </label></p>
    <table class="table table-bordered" cellspacing="0" width="100%" id="CityTax">
@@ -400,7 +400,11 @@
          </tr>
       </thead>
       <tbody>
+<<<<<<< HEAD
          <?php
+=======
+         <?php 
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
          if($getEmployeeContributions > 0){
          $c=1;
          foreach ($getEmployeeContributions as $employeeData){ ?>
@@ -422,6 +426,10 @@
       </tbody>
    </table>
 </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
 <!-- County Tax -->
 <div class="county_tax">
    <p  style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>COUNTY TAX </label></p>
@@ -440,7 +448,11 @@
          </tr>
       </thead>
       <tbody>
+<<<<<<< HEAD
          <?php
+=======
+         <?php 
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
          if($getEmployeeContributions > 0){
          $c=1;
          foreach ($getEmployeeContributions as $employeeData){ ?>
@@ -462,6 +474,10 @@
       </tbody>
    </table>
 </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
 </div>
 
 
@@ -807,7 +823,11 @@ function populateTable(response) {
                 taxes.forEach(taxKey => {
                     const taxName = taxKey.split('-')[0];
                     const code = taxKey.split('-')[1];
+<<<<<<< HEAD
                    var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'New Jersey';
+=======
+                    var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'New Jersey';
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
                     taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + changecode + "</th>";
                 });
             });
@@ -972,6 +992,7 @@ $(document).ready(function() {
        XLSX.writeFile(wb, 'data_tables.xlsx');
    });
 });
+<<<<<<< HEAD
 $(document).ready(function() {
    $('#CityTax').DataTable({
       "pageLength": 10,
@@ -990,6 +1011,30 @@ $(document).ready(function() {
       "paging": true
    });
 });
+=======
+
+$(document).ready(function() {
+   $('#CityTax').DataTable({
+      "pageLength": 10,  
+      "searching": true, 
+      "ordering": true,  
+      "lengthChange": true, 
+      "info": true, 
+      "paging": true 
+   });
+
+   $('#CountyTax').DataTable({
+      "pageLength": 10,  
+      "searching": true, 
+      "ordering": true,  
+      "lengthChange": true, 
+      "info": true, 
+      "paging": true 
+   });
+});
+
+
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
 </script>
 <style>
 th,td{

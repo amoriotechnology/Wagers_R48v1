@@ -533,7 +533,7 @@ function populateTable(response) {
             taxes.forEach(function (taxKey) {
                 var taxName = taxKey.split('-')[0];
                 var code = taxKey.split('-')[1];
-                var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'Code is something else';
+                var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'New Jersey';
                 taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + changecode + "</th>";
             });
         });
