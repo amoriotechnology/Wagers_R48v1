@@ -268,8 +268,8 @@
       </form>
       <div class="row">
          <div class="col-sm-16 col-md-14">
-            <div class="panel panel-bd lobidrag" id="printableArea">
-             
+<div class="panel panel-bd lobidrag" id="printableArea">
+              <div id='date_period_range' style='text-align: center;font-weight: bolder;font-size: x-large;color: #337ab7;'></div>
                    <div class="row">
          <div class="col-sm-16 col-md-14">
            
@@ -383,7 +383,6 @@
         <tfoot></tfoot>
     </table>
 
-    <!-- City Tax -->
 <div class="city_tax">
    <p  style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>CITY TAX </label></p>
    <table class="table table-bordered" cellspacing="0" width="100%" id="CityTax">
@@ -401,7 +400,11 @@
          </tr>
       </thead>
       <tbody>
+<<<<<<< HEAD
+         <?php
+=======
          <?php 
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
          if($getEmployeeContributions > 0){
          $c=1;
          foreach ($getEmployeeContributions as $employeeData){ ?>
@@ -423,7 +426,10 @@
       </tbody>
    </table>
 </div>
+<<<<<<< HEAD
+=======
 
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
 <!-- County Tax -->
 <div class="county_tax">
    <p  style='font-weight:bold;text-align:center;font-size: xx-large;'><label style='font-weight:bold;text-align:center;'>COUNTY TAX </label></p>
@@ -442,7 +448,11 @@
          </tr>
       </thead>
       <tbody>
+<<<<<<< HEAD
+         <?php
+=======
          <?php 
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
          if($getEmployeeContributions > 0){
          $c=1;
          foreach ($getEmployeeContributions as $employeeData){ ?>
@@ -464,7 +474,10 @@
       </tbody>
    </table>
 </div>
+<<<<<<< HEAD
+=======
 
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
 </div>
 
 
@@ -605,6 +618,9 @@ $(document).ready(function () {
             url: "<?php echo base_url('Chrm/state_tax_search_summary'); ?>",
             data: formData,
        success: function (response) {
+         if(($('#daterangepicker-field').val() !='')){
+               $('#date_period_range').html("Pay Range : " +$('#daterangepicker-field').val());
+              }
                 $('#tablesContainer').css('display','block');
                         populateTable(response);
                
@@ -807,7 +823,11 @@ function populateTable(response) {
                 taxes.forEach(taxKey => {
                     const taxName = taxKey.split('-')[0];
                     const code = taxKey.split('-')[1];
+<<<<<<< HEAD
+                   var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'New Jersey';
+=======
                     var changecode = code === 'PS' ? 'Pennsylvania' : code === 'ML' ? 'Maryland' : code === 'NJ' ? 'New Jersey' : 'New Jersey';
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
                     taxHeaders += "<th colspan='2' style='text-align:center'>" + taxName + "-" + changecode + "</th>";
                 });
             });
@@ -930,7 +950,7 @@ footerRow.append("<td>$" + totalNet.toFixed(3) + "</td>");
    var rowCount = $('#livingStateTaxTable tr').length;
     stateTaxTable.DataTable();
    // if(rowCount >= 2){
-      // livingStateTaxTable.DataTable();
+       livingStateTaxTable.DataTable();
     //}
 }
 
@@ -972,6 +992,26 @@ $(document).ready(function() {
        XLSX.writeFile(wb, 'data_tables.xlsx');
    });
 });
+<<<<<<< HEAD
+$(document).ready(function() {
+   $('#CityTax').DataTable({
+      "pageLength": 10,
+      "searching": true,
+      "ordering": true,
+      "lengthChange": true,
+      "info": true,
+      "paging": true
+   });
+   $('#CountyTax').DataTable({
+      "pageLength": 10,
+      "searching": true,
+      "ordering": true,
+      "lengthChange": true,
+      "info": true,
+      "paging": true
+   });
+});
+=======
 
 $(document).ready(function() {
    $('#CityTax').DataTable({
@@ -994,6 +1034,7 @@ $(document).ready(function() {
 });
 
 
+>>>>>>> dd2e721062c58f2fbc4aff598742acaab66e0147
 </script>
 <style>
 th,td{
